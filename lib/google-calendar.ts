@@ -101,9 +101,39 @@ export async function createCalendarEvent(
 
 export type FreebusySlot = { start: Date; end: Date };
 
+const MAX_CALENDARS_FREEBUSY = 50;
+
 /**
- * Returns busy time ranges for the teacher's calendar in the given window.
- * Used to block slots when computing availability.
+ * Returns calendar IDs to query for busy times: primary plus all calendars
+ * from the user's calendar list (e.g. Preply Schedule, other subscribed calendars).
+ */
+async function getCalendarIdsForFreebusy(
+  oauth2: ReturnType<typeof getOAuth2Client>
+): Promise<string[]> {
+  const ids = new Set<string>(["primary"]);
+  try {
+    let pageToken: string | undefined;
+    do {
+      const list = await calendar.calendarList.list({
+        auth: oauth2,
+        maxResults: 250,
+        pageToken,
+      });
+      for (const item of list.data.items ?? []) {
+        if (item.id) ids.add(item.id);
+      }
+      pageToken = list.data.nextPageToken ?? undefined;
+    } while (pageToken);
+  } catch (err) {
+    console.warn("[getCalendarIdsForFreebusy] Could not list calendars, using primary only:", err);
+  }
+  return Array.from(ids).slice(0, MAX_CALENDARS_FREEBUSY);
+}
+
+/**
+ * Returns busy time ranges for the teacher's calendars in the given window.
+ * Includes primary calendar and all other calendars (e.g. Preply Schedule)
+ * so events on any of them block availability.
  */
 export async function getFreebusy(
   teacher: Teacher,
@@ -111,7 +141,6 @@ export async function getFreebusy(
   timeMax: Date
 ): Promise<FreebusySlot[]> {
   if (!teacher.googleRefreshToken) return [];
-  const calendarId = teacher.googleCalendarId ?? "primary";
 
   await refreshTeacherTokens(teacher);
   const updated = await prisma.teacher.findUnique({
@@ -128,22 +157,31 @@ export async function getFreebusy(
   });
 
   try {
+    const calendarIds = await getCalendarIdsForFreebusy(oauth2);
     const res = await calendar.freebusy.query({
       auth: oauth2,
       requestBody: {
         timeMin: timeMin.toISOString(),
         timeMax: timeMax.toISOString(),
-        items: [{ id: calendarId }],
+        items: calendarIds.map((id) => ({ id })),
       },
     });
-    const cal = res.data.calendars?.[calendarId];
-    if (cal?.errors?.length) {
-      console.warn("[getFreebusy] Calendar API returned errors for", calendarId, cal.errors);
+
+    const allBusy: FreebusySlot[] = [];
+    const calendars = res.data.calendars ?? {};
+    for (const calId of Object.keys(calendars)) {
+      const cal = calendars[calId];
+      if (cal?.errors?.length) {
+        console.warn("[getFreebusy] Calendar API returned errors for", calId, cal.errors);
+      }
+      const busy = cal?.busy ?? [];
+      for (const b of busy) {
+        if (b.start && b.end) {
+          allBusy.push({ start: new Date(b.start), end: new Date(b.end) });
+        }
+      }
     }
-    const busy = cal?.busy ?? [];
-    return busy
-      .filter((b) => b.start && b.end)
-      .map((b) => ({ start: new Date(b.start!), end: new Date(b.end!) }));
+    return allBusy;
   } catch (err) {
     console.error("[getFreebusy] Failed to fetch busy slots:", err);
     return [];
@@ -151,7 +189,7 @@ export async function getFreebusy(
 }
 
 /**
- * Tests whether freebusy can be read for the teacher's calendar.
+ * Tests whether freebusy can be read for the teacher's calendars.
  * Returns { ok: true } or { ok: false, error: string }. Used for admin status.
  */
 export async function getFreebusyStatus(
@@ -160,7 +198,6 @@ export async function getFreebusyStatus(
   timeMax: Date
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (!teacher.googleRefreshToken) return { ok: false, error: "Calendar not connected" };
-  const calendarId = teacher.googleCalendarId ?? "primary";
 
   await refreshTeacherTokens(teacher);
   const updated = await prisma.teacher.findUnique({
@@ -177,20 +214,28 @@ export async function getFreebusyStatus(
   });
 
   try {
+    const calendarIds = await getCalendarIdsForFreebusy(oauth2);
     const res = await calendar.freebusy.query({
       auth: oauth2,
       requestBody: {
         timeMin: timeMin.toISOString(),
         timeMax: timeMax.toISOString(),
-        items: [{ id: calendarId }],
+        items: calendarIds.map((id) => ({ id })),
       },
     });
-    const cal = res.data.calendars?.[calendarId];
-    if (cal?.errors?.length) {
-      const msg = cal.errors
-        .map((e) => (typeof e.reason === "string" ? e.reason : "unknown"))
-        .join(", ");
-      return { ok: false, error: msg };
+    const calendars = res.data.calendars ?? {};
+    const errors: string[] = [];
+    for (const calId of Object.keys(calendars)) {
+      const cal = calendars[calId];
+      if (cal?.errors?.length) {
+        const msg = cal.errors
+          .map((e) => (typeof e.reason === "string" ? e.reason : "unknown"))
+          .join(", ");
+        errors.push(`${calId}: ${msg}`);
+      }
+    }
+    if (errors.length > 0 && errors.length === Object.keys(calendars).length) {
+      return { ok: false, error: errors.join("; ") };
     }
     return { ok: true };
   } catch (err) {

@@ -25,6 +25,8 @@ export default function Home() {
   const [step, setStep] = useState<"duration" | "date" | "time" | "form" | "done">("duration");
   const [selectedDuration, setSelectedDuration] = useState<LessonType | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [dateOptions, setDateOptions] = useState<string[]>([]);
+  const [datesLoading, setDatesLoading] = useState(false);
   const [slots, setSlots] = useState<string[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -50,6 +52,18 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!selectedDuration) return;
+    setDatesLoading(true);
+    setDateOptions([]);
+    setSelectedDate(null);
+    fetch(`/api/availability/dates?duration=${selectedDuration.duration}`)
+      .then((r) => r.json())
+      .then((data) => setDateOptions(data.dates ?? []))
+      .catch(() => setDateOptions([]))
+      .finally(() => setDatesLoading(false));
+  }, [selectedDuration]);
+
+  useEffect(() => {
     if (!selectedDate || !selectedDuration) return;
     setSlotsLoading(true);
     setSlots([]);
@@ -60,14 +74,6 @@ export default function Home() {
       .catch(() => setSlots([]))
       .finally(() => setSlotsLoading(false));
   }, [selectedDate, selectedDuration]);
-
-  const dateOptions: string[] = [];
-  const today = new Date();
-  for (let i = 0; i < 28; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    dateOptions.push(formatDateKey(d));
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,18 +192,24 @@ export default function Home() {
                 ← Change duration
               </button>
               <h2 className="mt-4 font-medium text-gray-900">Choose date</h2>
-              <div className="mt-3 grid grid-cols-4 gap-2">
-                {dateOptions.map((d) => (
-                  <button
-                    key={d}
-                    type="button"
-                    onClick={() => { setSelectedDate(d); setStep("time"); }}
-                    className="rounded-lg border border-gray-300 py-2 text-sm hover:border-gray-400"
-                  >
-                    {new Date(d + "T12:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
-                  </button>
-                ))}
-              </div>
+              {datesLoading ? (
+                <p className="mt-3 text-sm text-gray-500">Loading available days…</p>
+              ) : dateOptions.length === 0 ? (
+                <p className="mt-3 text-sm text-gray-500">No available days in the next 28 days.</p>
+              ) : (
+                <div className="mt-3 grid grid-cols-4 gap-2">
+                  {dateOptions.map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => { setSelectedDate(d); setStep("time"); }}
+                      className="rounded-lg border border-gray-300 py-2 text-sm hover:border-gray-400"
+                    >
+                      {new Date(d + "T12:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}
+                    </button>
+                  ))}
+                </div>
+              )}
             </>
           )}
 
