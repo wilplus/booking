@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { addMinutes } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import { createCalendarEvent } from "@/lib/google-calendar";
-import { sendBookingConfirmation } from "@/lib/email";
+import { sendBookingConfirmation, sendNewBookingNotificationToTeacher } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -103,9 +103,10 @@ export async function POST(request: Request) {
     console.error("Calendar event creation failed:", err);
   }
 
+  let clientEmailSent = false;
   try {
-    await sendBookingConfirmation({
-      to: clientEmail.trim(),
+    clientEmailSent = await sendBookingConfirmation({
+      to: clientEmail.trim().toLowerCase(),
       clientName: clientName.trim(),
       teacherName: teacher.name,
       clientTimezone: clientTimezone.trim(),
@@ -118,6 +119,21 @@ export async function POST(request: Request) {
     console.error("Confirmation email failed:", err);
   }
 
+  const teacherTimezone = process.env.TEACHER_TIMEZONE ?? "Europe/Paris";
+  try {
+    await sendNewBookingNotificationToTeacher({
+      to: teacher.email,
+      teacherName: teacher.name,
+      clientName: clientName.trim(),
+      clientEmail: clientEmail.trim(),
+      teacherTimezone,
+      startTime: b.startTime.toISOString(),
+      durationMinutes: b.lessonType.duration,
+    });
+  } catch (err) {
+    console.error("Teacher notification email failed:", err);
+  }
+
   return NextResponse.json({
     id: b.id,
     managementToken: b.managementToken,
@@ -125,5 +141,6 @@ export async function POST(request: Request) {
     endTime: b.endTime.toISOString(),
     duration: b.lessonType.duration,
     meetLink,
+    emailSent: clientEmailSent,
   });
 }

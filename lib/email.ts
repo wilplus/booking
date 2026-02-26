@@ -6,6 +6,7 @@ import CancellationConfirmation from "@/components/emails/CancellationConfirmati
 import Reminder24h from "@/components/emails/Reminder24h";
 import Reminder1h from "@/components/emails/Reminder1h";
 import PostSession from "@/components/emails/PostSession";
+import NewBookingNotification from "@/components/emails/NewBookingNotification";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -36,7 +37,10 @@ export async function sendBookingConfirmation(params: {
   meetLink: string | null;
   managementToken: string;
 }): Promise<boolean> {
-  if (!resend) return false;
+  if (!resend) {
+    console.warn("[email] RESEND_API_KEY not set – skipping client confirmation to", params.to);
+    return false;
+  }
   const manageUrl = `${appUrl}/manage/${params.managementToken}`;
   const startFormatted = formatInTz(params.startTime, params.clientTimezone || "UTC");
   const html = await render(
@@ -57,7 +61,7 @@ export async function sendBookingConfirmation(params: {
     html,
   });
   if (error) {
-    console.error("Resend sendBookingConfirmation:", error);
+    console.error("[email] Client confirmation failed to", params.to, error);
     return false;
   }
   return true;
@@ -90,6 +94,41 @@ export async function sendCancellationConfirmation(params: {
   });
   if (error) {
     console.error("Resend sendCancellationConfirmation:", error);
+    return false;
+  }
+  return true;
+}
+
+export async function sendNewBookingNotificationToTeacher(params: {
+  to: string;
+  teacherName: string;
+  clientName: string;
+  clientEmail: string;
+  teacherTimezone: string;
+  startTime: string;
+  durationMinutes: number;
+}): Promise<boolean> {
+  if (!resend) return false;
+  const startFormatted = formatInTz(params.startTime, params.teacherTimezone || "UTC");
+  const adminBookingsUrl = `${appUrl}/admin/bookings`;
+  const html = await render(
+    React.createElement(NewBookingNotification, {
+      teacherName: params.teacherName,
+      clientName: params.clientName,
+      clientEmail: params.clientEmail,
+      startTimeFormatted: startFormatted,
+      durationMinutes: params.durationMinutes,
+      adminBookingsUrl,
+    })
+  );
+  const { error } = await resend.emails.send({
+    from,
+    to: params.to,
+    subject: `New booking: ${params.clientName} – ${startFormatted}`,
+    html,
+  });
+  if (error) {
+    console.error("Resend sendNewBookingNotificationToTeacher:", error);
     return false;
   }
   return true;

@@ -35,7 +35,7 @@ export default function Home() {
   const [clientTz, setClientTz] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [confirmResult, setConfirmResult] = useState<{ managementToken: string } | null>(null);
+  const [confirmResult, setConfirmResult] = useState<{ managementToken: string; emailSent?: boolean } | null>(null);
 
   useEffect(() => {
     setClientTz(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -97,7 +97,7 @@ export default function Home() {
         setError(data.error || "Booking failed");
         return;
       }
-      setConfirmResult({ managementToken: data.managementToken });
+      setConfirmResult({ managementToken: data.managementToken, emailSent: data.emailSent });
       setStep("done");
     } catch {
       setError("Something went wrong. Please try again.");
@@ -123,21 +123,28 @@ export default function Home() {
 
   if (step === "done" && confirmResult) {
     const manageUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/manage/${confirmResult.managementToken}`;
+    const emailSent = confirmResult.emailSent !== false;
     return (
       <main className="min-h-screen bg-gray-50 p-6">
         <div className="mx-auto max-w-lg">
           <Logo className="mb-6" />
           <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
             <h1 className="text-xl font-semibold text-gray-900">Booking confirmed</h1>
-          <p className="mt-2 text-gray-600">
-            Check your email for the meeting link and calendar invite. You can cancel or reschedule using the link below.
-          </p>
-          <a
-            href={manageUrl}
-            className="mt-4 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
-          >
-            Manage booking
-          </a>
+            {emailSent ? (
+              <p className="mt-2 text-gray-600">
+                Check your email for the meeting link and calendar invite. You can cancel or reschedule using the link below.
+              </p>
+            ) : (
+              <p className="mt-2 text-gray-600">
+                We couldn&apos;t send the confirmation email. Please use the link below to manage your booking and save it for your records.
+              </p>
+            )}
+            <a
+              href={manageUrl}
+              className="mt-4 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+            >
+              Manage booking
+            </a>
           </div>
         </div>
       </main>
