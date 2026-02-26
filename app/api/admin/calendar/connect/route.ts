@@ -9,12 +9,23 @@ const SCOPES = [
   "https://www.googleapis.com/auth/calendar.events",
 ];
 
-export async function GET() {
+function getBaseUrl(request: Request): string {
+  const envUrl = process.env.NEXTAUTH_URL?.trim();
+  if (envUrl && !envUrl.includes("localhost")) return envUrl;
+  try {
+    const url = new URL(request.url);
+    return url.origin;
+  } catch {
+    return envUrl || "http://localhost:3000";
+  }
+}
+
+export async function GET(request: Request) {
+  const baseUrl = getBaseUrl(request);
   const teacher = await getAdminTeacher();
   if (!teacher) {
-    return NextResponse.redirect(new URL("/admin/sign-in", process.env.NEXTAUTH_URL || "http://localhost:3000"));
+    return NextResponse.redirect(new URL("/admin/sign-in", baseUrl));
   }
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const redirectUri = `${baseUrl}/api/admin/calendar/callback`;
   const oauth2 = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,

@@ -6,11 +6,23 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+function getBaseUrl(request: Request): string {
+  const envUrl = process.env.NEXTAUTH_URL?.trim();
+  if (envUrl && !envUrl.includes("localhost")) return envUrl;
+  try {
+    const url = new URL(request.url);
+    return url.origin;
+  } catch {
+    return envUrl || "http://localhost:3000";
+  }
+}
+
 export async function GET(request: Request) {
+  const baseUrl = getBaseUrl(request);
   const session = await getServerSession(authOptions);
   const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
   if (!session?.user?.email || session.user.email.toLowerCase() !== adminEmail) {
-    return NextResponse.redirect(new URL("/admin/sign-in", process.env.NEXTAUTH_URL || "http://localhost:3000"));
+    return NextResponse.redirect(new URL("/admin/sign-in", baseUrl));
   }
 
   const { searchParams } = new URL(request.url);
@@ -18,7 +30,6 @@ export async function GET(request: Request) {
   const state = searchParams.get("state");
   const error = searchParams.get("error");
 
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const calendarUrl = new URL("/admin/calendar", baseUrl);
 
   if (error) {
