@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { Logo } from "@/components/Logo";
 
 function SignInForm() {
   const searchParams = useSearchParams();
@@ -11,6 +12,7 @@ function SignInForm() {
 
   return (
     <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+      <Logo text="Admin" className="mb-6 justify-center" />
       <h1 className="text-xl font-semibold text-gray-900">Admin sign in</h1>
       <p className="mt-1 text-sm text-gray-500">
         Sign in with your whitelisted Google account to access the admin panel.

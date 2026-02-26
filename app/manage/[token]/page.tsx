@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Logo } from "@/components/Logo";
 
 type Booking = {
   id: string;
@@ -100,8 +101,10 @@ export default function ManageBookingPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 p-6">
-      <div className="mx-auto max-w-lg rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
-        <h1 className="text-xl font-semibold text-gray-900">Your booking</h1>
+      <div className="mx-auto max-w-lg">
+        <Logo className="mb-6" />
+        <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+          <h1 className="text-xl font-semibold text-gray-900">Your booking</h1>
         <p className="mt-1 text-gray-600">with {booking.teacherName}</p>
 
         <dl className="mt-6 space-y-2 text-sm">
@@ -155,6 +158,7 @@ export default function ManageBookingPage() {
         <a href="/" className="mt-6 inline-block text-sm text-gray-600 underline">
           Book another lesson
         </a>
+        </div>
       </div>
     </main>
   );

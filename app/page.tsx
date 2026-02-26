@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Logo } from "@/components/Logo";
 
 type LessonType = { id: string; duration: number; price: number; currency: string };
 type Teacher = { id: string; name: string; photoUrl: string | null; bio: string | null; lessonTypes: LessonType[] };
@@ -118,8 +119,10 @@ export default function Home() {
     const manageUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/manage/${confirmResult.managementToken}`;
     return (
       <main className="min-h-screen bg-gray-50 p-6">
-        <div className="mx-auto max-w-lg rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
-          <h1 className="text-xl font-semibold text-gray-900">Booking confirmed</h1>
+        <div className="mx-auto max-w-lg">
+          <Logo className="mb-6" />
+          <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+            <h1 className="text-xl font-semibold text-gray-900">Booking confirmed</h1>
           <p className="mt-2 text-gray-600">
             Check your email for the meeting link and calendar invite. You can cancel or reschedule using the link below.
           </p>
@@ -129,6 +132,7 @@ export default function Home() {
           >
             Manage booking
           </a>
+          </div>
         </div>
       </main>
     );
@@ -137,6 +141,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 p-6">
       <div className="mx-auto max-w-lg">
+        <Logo className="mb-6" />
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           {teacher.photoUrl && (
             <img
