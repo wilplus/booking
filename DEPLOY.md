@@ -120,7 +120,7 @@ So sign-in and “Connect Google Calendar” work in production:
 Crons are defined in `vercel.json` and run only on **production** (not preview URLs).
 
 - Set `CRON_SECRET` in Vercel (step 3). Vercel sends it when calling your cron endpoints.
-- After deploy, check **Vercel → Project → Cron Jobs** to see the two jobs (reminders + post-session) and their schedule.
+- After deploy, check **Vercel → Project → Cron Jobs** to see the single job (`/api/cron/run`), which runs reminders (24h + 1h) and post-session emails every 15 minutes.
 
 ---
 
