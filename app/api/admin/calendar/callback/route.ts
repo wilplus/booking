@@ -4,6 +4,8 @@ import { google } from "googleapis";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
   const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();

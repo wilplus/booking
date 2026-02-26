@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getAvailableSlots } from "@/lib/slots";
 import { getFreebusy } from "@/lib/google-calendar";
 
+export const dynamic = "force-dynamic";
+
 const TEACHER_TIMEZONE = process.env.TEACHER_TIMEZONE ?? "Europe/Paris";
 
 export async function GET(request: Request) {

@@ -7,6 +7,8 @@ import {
   sendPostSessionEmail,
 } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) return false;

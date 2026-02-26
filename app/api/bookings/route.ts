@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { createCalendarEvent } from "@/lib/google-calendar";
 import { sendBookingConfirmation } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   const body = await request.json();
   const { clientName, clientEmail, clientTimezone, lessonTypeId, startTime: startTimeStr } = body;

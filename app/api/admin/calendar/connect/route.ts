@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getAdminTeacher } from "@/lib/admin";
 import { google } from "googleapis";
 
+export const dynamic = "force-dynamic";
+
 const SCOPES = [
   "https://www.googleapis.com/auth/calendar",
   "https://www.googleapis.com/auth/calendar.events",

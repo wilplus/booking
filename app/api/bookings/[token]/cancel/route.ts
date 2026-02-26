@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { deleteCalendarEvent } from "@/lib/google-calendar";
 import { sendCancellationConfirmation } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(
   _request: Request,
   { params }: { params: Promise<{ token: string }> }
