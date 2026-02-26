@@ -187,7 +187,9 @@ export async function getFreebusyStatus(
     });
     const cal = res.data.calendars?.[calendarId];
     if (cal?.errors?.length) {
-      const msg = cal.errors.map((e: { reason?: string }) => e.reason ?? "unknown").join(", ");
+      const msg = cal.errors
+        .map((e) => (typeof e.reason === "string" ? e.reason : "unknown"))
+        .join(", ");
       return { ok: false, error: msg };
     }
     return { ok: true };
