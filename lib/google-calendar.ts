@@ -151,6 +151,53 @@ export async function getFreebusy(
 }
 
 /**
+ * Tests whether freebusy can be read for the teacher's calendar.
+ * Returns { ok: true } or { ok: false, error: string }. Used for admin status.
+ */
+export async function getFreebusyStatus(
+  teacher: Teacher,
+  timeMin: Date,
+  timeMax: Date
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!teacher.googleRefreshToken) return { ok: false, error: "Calendar not connected" };
+  const calendarId = teacher.googleCalendarId ?? "primary";
+
+  await refreshTeacherTokens(teacher);
+  const updated = await prisma.teacher.findUnique({
+    where: { id: teacher.id },
+    select: { googleAccessToken: true },
+  });
+  const accessToken = updated?.googleAccessToken ?? teacher.googleAccessToken;
+  if (!accessToken) return { ok: false, error: "No access token" };
+
+  const oauth2 = getOAuth2Client();
+  oauth2.setCredentials({
+    refresh_token: teacher.googleRefreshToken,
+    access_token: accessToken,
+  });
+
+  try {
+    const res = await calendar.freebusy.query({
+      auth: oauth2,
+      requestBody: {
+        timeMin: timeMin.toISOString(),
+        timeMax: timeMax.toISOString(),
+        items: [{ id: calendarId }],
+      },
+    });
+    const cal = res.data.calendars?.[calendarId];
+    if (cal?.errors?.length) {
+      const msg = cal.errors.map((e: { reason?: string }) => e.reason ?? "unknown").join(", ");
+      return { ok: false, error: msg };
+    }
+    return { ok: true };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: message };
+  }
+}
+
+/**
  * Deletes a Google Calendar event. Refreshes token if needed.
  */
 export async function deleteCalendarEvent(

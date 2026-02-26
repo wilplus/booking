@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminTeacher } from "@/lib/admin";
-import { getFreebusy } from "@/lib/google-calendar";
-import { startOfDay, endOfDay } from "date-fns";
+import { getFreebusyStatus } from "@/lib/google-calendar";
 import { fromZonedTime } from "date-fns-tz";
 
 export const dynamic = "force-dynamic";
@@ -20,17 +19,13 @@ export async function GET() {
   let freebusyOk: boolean | null = null;
   let freebusyError: string | null = null;
   if (connected) {
-    try {
-      const today = new Date();
-      const dateStr = today.toISOString().slice(0, 10);
-      const timeMin = fromZonedTime(`${dateStr}T00:00:00`, TEACHER_TIMEZONE);
-      const timeMax = fromZonedTime(`${dateStr}T23:59:59`, TEACHER_TIMEZONE);
-      const busy = await getFreebusy(teacher, timeMin, timeMax);
-      freebusyOk = true;
-    } catch (err) {
-      freebusyOk = false;
-      freebusyError = err instanceof Error ? err.message : String(err);
-    }
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10);
+    const timeMin = fromZonedTime(`${dateStr}T00:00:00`, TEACHER_TIMEZONE);
+    const timeMax = fromZonedTime(`${dateStr}T23:59:59`, TEACHER_TIMEZONE);
+    const status = await getFreebusyStatus(teacher, timeMin, timeMax);
+    freebusyOk = status.ok;
+    freebusyError = status.ok ? null : status.error;
   }
 
   return NextResponse.json({

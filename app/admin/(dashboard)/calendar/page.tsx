@@ -5,14 +5,19 @@ import { useSearchParams } from "next/navigation";
 
 function CalendarContent() {
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<{ connected: boolean; calendarId: string | null } | null>(null);
+  const [status, setStatus] = useState<{
+    connected: boolean;
+    calendarId: string | null;
+    freebusyOk: boolean | null;
+    freebusyError: string | null;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/admin/calendar/status")
       .then((r) => r.json())
       .then((data) => setStatus(data))
-      .catch(() => setStatus({ connected: false, calendarId: null }))
+      .catch(() => setStatus({ connected: false, calendarId: null, freebusyOk: null, freebusyError: null }))
       .finally(() => setLoading(false));
   }, []);
 
@@ -49,6 +54,19 @@ function CalendarContent() {
           <p className="mt-1 text-sm text-gray-600">
             Calendar: {status.calendarId ?? "primary"}
           </p>
+          {status.freebusyOk === true && (
+            <p className="mt-2 text-sm text-green-700">
+              Busy times are read correctly — slots blocked on your calendar will be hidden from clients.
+            </p>
+          )}
+          {status.freebusyOk === false && (
+            <div className="mt-2 rounded border border-amber-200 bg-amber-50 p-2 text-sm text-amber-800">
+              <strong>Busy times not available.</strong> Your calendar is connected but the app could not read busy slots, so clients may see times you are already busy.
+              {status.freebusyError && (
+                <p className="mt-1 font-mono text-xs">{status.freebusyError}</p>
+              )}
+            </div>
+          )}
           <a
             href="/api/admin/calendar/connect"
             className="mt-4 inline-block rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
