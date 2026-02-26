@@ -112,6 +112,7 @@ So sign-in and “Connect Google Calendar” work in production:
      - `https://YOUR_PROJECT.vercel.app/api/auth/callback/google`
      - `https://YOUR_PROJECT.vercel.app/api/admin/calendar/callback`
 4. Save.
+5. **Enable the Google Calendar API** so busy times are blocked and events can be created: **APIs & Services → Library** → search for “Google Calendar API” → **Enable**. Without this, the app cannot read your calendar busy times or create events.
 
 ---
 

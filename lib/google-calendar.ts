@@ -137,11 +137,15 @@ export async function getFreebusy(
       },
     });
     const cal = res.data.calendars?.[calendarId];
+    if (cal?.errors?.length) {
+      console.warn("[getFreebusy] Calendar API returned errors for", calendarId, cal.errors);
+    }
     const busy = cal?.busy ?? [];
     return busy
       .filter((b) => b.start && b.end)
       .map((b) => ({ start: new Date(b.start!), end: new Date(b.end!) }));
-  } catch {
+  } catch (err) {
+    console.error("[getFreebusy] Failed to fetch busy slots:", err);
     return [];
   }
 }
