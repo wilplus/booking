@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addDays, format, parseISO } from "date-fns";
+import { addDays, format, parseISO, lastDayOfMonth, startOfMonth } from "date-fns";
 import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { prisma } from "@/lib/prisma";
 import { getAvailableSlots } from "@/lib/slots";
@@ -13,6 +13,8 @@ const DATE_RANGE_DAYS = 28;
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const durationParam = searchParams.get("duration");
+  const yearParam = searchParams.get("year");
+  const monthParam = searchParams.get("month");
 
   if (!durationParam) {
     return NextResponse.json(
@@ -42,16 +44,35 @@ export async function GET(request: Request) {
   const now = new Date();
   const todayInTeacherTz = format(toZonedTime(now, TEACHER_TIMEZONE), "yyyy-MM-dd");
   const maxAllowedDate = addDays(parseISO(todayInTeacherTz), teacher.maxAdvanceBookingDays);
-  const dateStrings: string[] = [];
-  for (let i = 0; i < DATE_RANGE_DAYS; i++) {
-    const d = addDays(parseISO(todayInTeacherTz), i);
-    const dateStr = format(d, "yyyy-MM-dd");
-    if (dateStr > format(maxAllowedDate, "yyyy-MM-dd")) break;
-    dateStrings.push(dateStr);
+
+  let dateStrings: string[] = [];
+  if (yearParam && monthParam) {
+    const year = parseInt(yearParam, 10);
+    const month = parseInt(monthParam, 10);
+    if (Number.isNaN(year) || Number.isNaN(month) || month < 1 || month > 12) {
+      return NextResponse.json({ error: "Invalid year or month" }, { status: 400 });
+    }
+    const monthStart = startOfMonth(new Date(year, month - 1));
+    const monthEnd = lastDayOfMonth(monthStart);
+    const startStr = format(monthStart, "yyyy-MM-dd");
+    const endStr = format(monthEnd, "yyyy-MM-dd");
+    for (let d = parseISO(startStr); d <= monthEnd; d = addDays(d, 1)) {
+      const dateStr = format(d, "yyyy-MM-dd");
+      if (dateStr >= todayInTeacherTz && dateStr <= format(maxAllowedDate, "yyyy-MM-dd")) {
+        dateStrings.push(dateStr);
+      }
+    }
+  } else {
+    for (let i = 0; i < DATE_RANGE_DAYS; i++) {
+      const d = addDays(parseISO(todayInTeacherTz), i);
+      const dateStr = format(d, "yyyy-MM-dd");
+      if (dateStr > format(maxAllowedDate, "yyyy-MM-dd")) break;
+      dateStrings.push(dateStr);
+    }
   }
 
   if (dateStrings.length === 0) {
-    return NextResponse.json({ dates: [] });
+    return NextResponse.json({ dates: [], datesWithSlots: [] });
   }
 
   const rangeStart = fromZonedTime(`${dateStrings[0]}T00:00:00`, TEACHER_TIMEZONE);
@@ -124,5 +145,6 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ dates: datesWithSlots });
+  // dates = all in-range days (for grid); datesWithSlots = only days with slots (for styling like past when no slots)
+  return NextResponse.json({ dates: dateStrings, datesWithSlots });
 }

@@ -12,6 +12,7 @@ export async function GET() {
   const lessonTypes = await prisma.lessonType.findMany({
     where: { teacherId: teacher.id },
     orderBy: { duration: "asc" },
+    select: { id: true, duration: true, price: true, currency: true, description: true, isActive: true },
   });
   return NextResponse.json(lessonTypes);
 }
@@ -24,19 +25,25 @@ export async function PUT(request: Request) {
   const body = await request.json();
   if (!Array.isArray(body)) {
     return NextResponse.json(
-      { error: "Body must be an array of { id, price, currency, isActive }" },
+      { error: "Body must be an array of { id, price, currency, description?, isActive }" },
       { status: 400 }
     );
   }
-  const updated = await prisma.$transaction(
+  await prisma.$transaction(
     body.map(
-      (row: { id: string; price: number; currency: string; isActive: boolean }) => {
+      (row: { id: string; price: number; currency: string; description?: string | null; isActive: boolean }) => {
         if (!row.id || typeof row.price !== "number" || typeof row.currency !== "string" || typeof row.isActive !== "boolean") {
           throw new Error("Each row must have id, price (number), currency (string), isActive (boolean)");
         }
+        const data: { price: number; currency: string; description?: string | null; isActive: boolean } = {
+          price: row.price,
+          currency: row.currency.trim() || "EUR",
+          isActive: row.isActive,
+        };
+        if (row.description !== undefined) data.description = row.description?.trim() || null;
         return prisma.lessonType.updateMany({
           where: { id: row.id, teacherId: teacher.id },
-          data: { price: row.price, currency: row.currency.trim() || "EUR", isActive: row.isActive },
+          data,
         });
       }
     )
@@ -44,6 +51,7 @@ export async function PUT(request: Request) {
   const lessonTypes = await prisma.lessonType.findMany({
     where: { teacherId: teacher.id },
     orderBy: { duration: "asc" },
+    select: { id: true, duration: true, price: true, currency: true, description: true, isActive: true },
   });
   return NextResponse.json(lessonTypes);
 }

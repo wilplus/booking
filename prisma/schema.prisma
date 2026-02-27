@@ -66,6 +66,7 @@ model LessonType {
   duration    Int       // 30, 60, or 90 minutes
   price       Float     // price in EUR or relevant currency
   currency    String    @default("EUR")
+  description String?   // optional short description for booking UI
   isActive        Boolean          @default(true)
   bookings        Booking[]
   recurringSeries RecurringSeries[]

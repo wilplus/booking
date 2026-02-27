@@ -98,16 +98,16 @@ export default function BookingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Bookings</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Bookings</h1>
 
-      <div className="flex flex-wrap items-center gap-4 rounded-lg border border-gray-200 bg-white p-4">
+      <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border bg-card p-4">
         <div>
-          <label htmlFor="status" className="mr-2 text-sm text-gray-600">Status</label>
+          <label htmlFor="status" className="mr-2 text-sm text-muted-foreground">Status</label>
           <select
             id="status"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1.5 text-sm"
+            className="rounded border border-border bg-card px-2 py-1.5 text-sm text-foreground"
           >
             <option value="">All</option>
             <option value="CONFIRMED">Confirmed</option>
@@ -117,23 +117,23 @@ export default function BookingsPage() {
           </select>
         </div>
         <div>
-          <label htmlFor="from" className="mr-2 text-sm text-gray-600">From</label>
+          <label htmlFor="from" className="mr-2 text-sm text-muted-foreground">From</label>
           <input
             id="from"
             type="date"
             value={fromDate}
             onChange={(e) => setFromDate(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1.5 text-sm"
+            className="rounded border border-border bg-card px-2 py-1.5 text-sm text-foreground"
           />
         </div>
         <div>
-          <label htmlFor="to" className="mr-2 text-sm text-gray-600">To</label>
+          <label htmlFor="to" className="mr-2 text-sm text-muted-foreground">To</label>
           <input
             id="to"
             type="date"
             value={toDate}
             onChange={(e) => setToDate(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1.5 text-sm"
+            className="rounded border border-border bg-card px-2 py-1.5 text-sm text-foreground"
           />
         </div>
         <button
@@ -143,44 +143,44 @@ export default function BookingsPage() {
             setToDate("");
             setStatusFilter("");
           }}
-          className="text-sm text-gray-600 underline hover:text-gray-900"
+          className="text-sm text-muted-foreground underline hover:text-foreground"
         >
           Reset filters
         </button>
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Loading…</p>
+        <p className="text-muted-foreground">Loading…</p>
       ) : bookings.length === 0 ? (
-        <p className="rounded-lg border border-gray-200 bg-white p-6 text-gray-600">No bookings match the current filters.</p>
+        <p className="rounded-lg border border-border bg-card p-6 text-muted-foreground">No bookings match the current filters.</p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-accent">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Time</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Client</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Duration</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Time</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Client</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Duration</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="divide-y divide-border bg-card">
                 {bookings.map((b) => (
-                  <tr key={b.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-900">
+                  <tr key={b.id} className="hover:bg-accent/50">
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-foreground">
                       {formatDateOnly(b.startTime, teacherTimezone)}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
                       {formatTimeOnly(b.startTime, teacherTimezone)}
                     </td>
                     <td className="px-4 py-3 text-sm">
-                      <div className="font-medium text-gray-900">{b.clientName}</div>
-                      <div className="text-gray-500">{b.clientEmail}</div>
+                      <div className="font-medium text-foreground">{b.clientName}</div>
+                      <div className="text-muted-foreground">{b.clientEmail}</div>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
                       {b.duration} min
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
@@ -193,7 +193,7 @@ export default function BookingsPage() {
                         href={`${appUrl}/manage/${b.managementToken}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-600 underline hover:text-gray-900"
+                        className="text-muted-foreground underline hover:text-foreground"
                       >
                         View
                       </a>
@@ -204,7 +204,7 @@ export default function BookingsPage() {
                             href={b.meetLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-gray-600 underline hover:text-gray-900"
+                            className="text-muted-foreground underline hover:text-foreground"
                           >
                             Meet
                           </a>
@@ -219,7 +219,7 @@ export default function BookingsPage() {
         </div>
       )}
 
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-muted-foreground">
         Times shown in your timezone ({teacherTimezone}). Default range: 30 days ago to 90 days ahead.
       </p>
     </div>

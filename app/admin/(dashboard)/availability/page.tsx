@@ -125,8 +125,8 @@ export default function AvailabilityPage() {
   if (loading) {
     return (
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Availability</h1>
-        <p className="mt-2 text-gray-500">Loading…</p>
+        <h1 className="text-2xl font-semibold text-foreground">Availability</h1>
+        <p className="mt-2 text-muted-foreground">Loading…</p>
       </div>
     );
   }
@@ -138,15 +138,15 @@ export default function AvailabilityPage() {
 
   return (
     <div className="space-y-10">
-      <h1 className="text-2xl font-semibold text-gray-900">Availability</h1>
+      <h1 className="text-2xl font-semibold text-foreground">Availability</h1>
 
-      <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-medium text-gray-900">Weekly schedule</h2>
-        <p className="mt-1 text-sm text-gray-500">Set your regular hours per day. Inactive days are not bookable.</p>
+      <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <h2 className="text-lg font-medium text-foreground">Weekly schedule</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Set your regular hours per day. Inactive days are not bookable.</p>
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-gray-600">
+              <tr className="border-b border-border text-left text-muted-foreground">
                 <th className="pb-2 pr-4 font-medium">Day</th>
                 <th className="pb-2 pr-4 font-medium">Active</th>
                 <th className="pb-2 pr-4 font-medium">Start</th>
@@ -155,21 +155,21 @@ export default function AvailabilityPage() {
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.dayOfWeek} className="border-b border-gray-100">
-                  <td className="py-3 pr-4 font-medium text-gray-900">{DAY_NAMES[r.dayOfWeek]}</td>
+                <tr key={r.dayOfWeek} className="border-b border-border/50">
+                  <td className="py-3 pr-4 font-medium text-foreground">{DAY_NAMES[r.dayOfWeek]}</td>
                   <td className="py-3 pr-4">
                     <input
                       type="checkbox"
                       checked={r.isActive}
                       onChange={(e) => updateWeekly(r.dayOfWeek, { isActive: e.target.checked })}
-                      className="h-4 w-4 rounded border-gray-300"
+                      className="h-4 w-4 rounded border-border"
                     />
                   </td>
                   <td className="py-3 pr-4">
                     <select
                       value={r.startTime}
                       onChange={(e) => updateWeekly(r.dayOfWeek, { startTime: e.target.value })}
-                      className="rounded border border-gray-300 px-2 py-1"
+                      className="rounded border border-border px-2 py-1"
                     >
                       {TIME_OPTIONS.map((t) => (
                         <option key={t} value={t}>{t}</option>
@@ -180,7 +180,7 @@ export default function AvailabilityPage() {
                     <select
                       value={r.endTime}
                       onChange={(e) => updateWeekly(r.dayOfWeek, { endTime: e.target.value })}
-                      className="rounded border border-gray-300 px-2 py-1"
+                      className="rounded border border-border px-2 py-1"
                     >
                       {TIME_OPTIONS.map((t) => (
                         <option key={t} value={t}>{t}</option>
@@ -196,25 +196,25 @@ export default function AvailabilityPage() {
           type="button"
           onClick={saveWeekly}
           disabled={saving}
-          className="mt-4 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+          className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save weekly schedule"}
         </button>
       </section>
 
-      <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-medium text-gray-900">Date overrides</h2>
-        <p className="mt-1 text-sm text-gray-500">Block specific dates (e.g. vacation) or set custom hours.</p>
+      <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <h2 className="text-lg font-medium text-foreground">Date overrides</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Block specific dates (e.g. vacation) or set custom hours.</p>
 
         <form onSubmit={addOverride} className="mt-4 flex flex-wrap items-end gap-4">
           <div>
-            <label className="block text-xs font-medium text-gray-500">Date</label>
+            <label className="block text-xs font-medium text-muted-foreground">Date</label>
             <input
               type="date"
               value={overrideDate}
               onChange={(e) => setOverrideDate(e.target.value)}
               required
-              className="mt-1 rounded border border-gray-300 px-3 py-2 text-sm"
+              className="mt-1 rounded border border-border px-3 py-2 text-sm"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -240,11 +240,11 @@ export default function AvailabilityPage() {
           {!overrideBlocked && (
             <>
               <div>
-                <label className="block text-xs font-medium text-gray-500">Start</label>
+                <label className="block text-xs font-medium text-muted-foreground">Start</label>
                 <select
                   value={overrideStart}
                   onChange={(e) => setOverrideStart(e.target.value)}
-                  className="mt-1 rounded border border-gray-300 px-2 py-1.5 text-sm"
+                  className="mt-1 rounded border border-border px-2 py-1.5 text-sm"
                 >
                   {TIME_OPTIONS.map((t) => (
                     <option key={t} value={t}>{t}</option>
@@ -252,11 +252,11 @@ export default function AvailabilityPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500">End</label>
+                <label className="block text-xs font-medium text-muted-foreground">End</label>
                 <select
                   value={overrideEnd}
                   onChange={(e) => setOverrideEnd(e.target.value)}
-                  className="mt-1 rounded border border-gray-300 px-2 py-1.5 text-sm"
+                  className="mt-1 rounded border border-border px-2 py-1.5 text-sm"
                 >
                   {TIME_OPTIONS.map((t) => (
                     <option key={t} value={t}>{t}</option>
@@ -266,19 +266,19 @@ export default function AvailabilityPage() {
             </>
           )}
           <div className="min-w-[160px]">
-            <label className="block text-xs font-medium text-gray-500">Reason (optional)</label>
+            <label className="block text-xs font-medium text-muted-foreground">Reason (optional)</label>
             <input
               type="text"
               value={overrideReason}
               onChange={(e) => setOverrideReason(e.target.value)}
               placeholder="e.g. Vacation"
-              className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded border border-border px-3 py-2 text-sm"
             />
           </div>
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
           >
             Add override
           </button>
@@ -289,10 +289,10 @@ export default function AvailabilityPage() {
             {overrides.map((o) => (
               <li
                 key={o.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded border border-gray-100 bg-gray-50 px-3 py-2 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 rounded border border-border/50 bg-accent px-3 py-2 text-sm"
               >
-                <span className="font-medium text-gray-900">{o.date}</span>
-                <span className="text-gray-600">
+                <span className="font-medium text-foreground">{o.date}</span>
+                <span className="text-muted-foreground">
                   {o.isBlocked ? "Blocked" : `${o.startTime} – ${o.endTime}`}
                   {o.reason ? ` · ${o.reason}` : ""}
                 </span>

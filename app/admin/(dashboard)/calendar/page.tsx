@@ -26,8 +26,8 @@ function CalendarContent() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-semibold text-gray-900">Google Calendar</h1>
-      <p className="text-gray-600">
+      <h1 className="text-2xl font-semibold text-foreground">Google Calendar</h1>
+      <p className="text-muted-foreground">
         Connect your calendar to create events with Meet links when clients book, and to block busy times.
       </p>
 
@@ -47,11 +47,11 @@ function CalendarContent() {
       )}
 
       {loading ? (
-        <p className="text-gray-500">Loading…</p>
+        <p className="text-muted-foreground">Loading…</p>
       ) : status?.connected ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <p className="font-medium text-gray-900">Connected</p>
-          <p className="mt-1 text-sm text-gray-600">
+        <div className="rounded-lg border border-border bg-card p-6">
+          <p className="font-medium text-foreground">Connected</p>
+          <p className="mt-1 text-sm text-muted-foreground">
             Calendar: {status.calendarId ?? "primary"}
           </p>
           {status.freebusyOk === true && (
@@ -69,17 +69,17 @@ function CalendarContent() {
           )}
           <a
             href="/api/admin/calendar/connect"
-            className="mt-4 inline-block rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="mt-4 inline-block rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-accent"
           >
             Re-authorize
           </a>
         </div>
       ) : (
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <p className="text-gray-600">Not connected. Click below to connect with Google (Calendar scope).</p>
+        <div className="rounded-lg border border-border bg-card p-6">
+          <p className="text-muted-foreground">Not connected. Click below to connect with Google (Calendar scope).</p>
           <a
             href="/api/admin/calendar/connect"
-            className="mt-4 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+            className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90"
           >
             Connect Google Calendar
           </a>
@@ -91,7 +91,7 @@ function CalendarContent() {
 
 export default function CalendarPage() {
   return (
-    <Suspense fallback={<p className="text-gray-500">Loading…</p>}>
+    <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
       <CalendarContent />
     </Suspense>
   );

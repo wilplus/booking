@@ -11,26 +11,26 @@ function SignInForm() {
   const callbackUrl = searchParams.get("callbackUrl") ?? "/admin";
 
   return (
-    <div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-sm">
       <Logo text="Admin" className="mb-6 justify-center" />
-      <h1 className="text-xl font-semibold text-gray-900">Admin sign in</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="text-xl font-semibold text-foreground">Admin sign in</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
         Sign in with your whitelisted Google account to access the admin panel.
       </p>
       {error === "AccessDenied" && (
-        <p className="mt-3 rounded bg-amber-50 p-2 text-sm text-amber-800">
+        <p className="mt-3 rounded-lg bg-amber-50 p-2 text-sm text-amber-800">
           Access denied. Only the admin email can sign in.
         </p>
       )}
       {error && error !== "AccessDenied" && (
-        <p className="mt-3 rounded bg-red-50 p-2 text-sm text-red-800">
+        <p className="mt-3 rounded-lg bg-red-50 p-2 text-sm text-red-800">
           Sign-in error. Please try again.
         </p>
       )}
       <button
         type="button"
         onClick={() => signIn("google", { callbackUrl })}
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-800"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-white transition hover:opacity-90"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
           <path
@@ -59,7 +59,7 @@ function SignInForm() {
 export default function AdminSignInPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <Suspense fallback={<div className="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-8 shadow-sm animate-pulse" />}>
+        <Suspense fallback={<div className="w-full max-w-sm rounded-xl border border-border bg-card p-8 animate-pulse" />}>
         <SignInForm />
       </Suspense>
     </main>
