@@ -14,6 +14,9 @@ const resend = process.env.RESEND_API_KEY
 const from = process.env.EMAIL_FROM ?? "booking@willonski.com";
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://booking.willonski.com";
 
+// Emails require: RESEND_API_KEY set; EMAIL_FROM must be a verified domain in Resend (https://resend.com/domains).
+// If emails don't send, check server logs for "[email]" errors and the Resend dashboard for delivery status.
+
 function formatInTz(isoUtc: string, tz: string): string {
   try {
     const d = new Date(isoUtc);
@@ -61,7 +64,7 @@ export async function sendBookingConfirmation(params: {
     html,
   });
   if (error) {
-    console.error("[email] Client confirmation failed to", params.to, error);
+    console.error("[email] Client confirmation failed to", params.to, JSON.stringify(error));
     return false;
   }
   return true;
@@ -93,7 +96,7 @@ export async function sendCancellationConfirmation(params: {
     html,
   });
   if (error) {
-    console.error("Resend sendCancellationConfirmation:", error);
+    console.error("[email] Cancellation failed to", params.to, JSON.stringify(error));
     return false;
   }
   return true;
@@ -128,7 +131,7 @@ export async function sendNewBookingNotificationToTeacher(params: {
     html,
   });
   if (error) {
-    console.error("Resend sendNewBookingNotificationToTeacher:", error);
+    console.error("[email] Teacher notification failed to", params.to, JSON.stringify(error));
     return false;
   }
   return true;
@@ -165,7 +168,7 @@ export async function sendReminder24h(params: {
     html,
   });
   if (error) {
-    console.error("Resend sendReminder24h:", error);
+    console.error("[email] Reminder 24h failed to", params.to, JSON.stringify(error));
     return false;
   }
   return true;
@@ -202,7 +205,7 @@ export async function sendReminder1h(params: {
     html,
   });
   if (error) {
-    console.error("Resend sendReminder1h:", error);
+    console.error("[email] Reminder 1h failed to", params.to, JSON.stringify(error));
     return false;
   }
   return true;
@@ -238,7 +241,7 @@ export async function sendPostSessionEmail(params: {
     html,
   });
   if (error) {
-    console.error("Resend sendPostSessionEmail:", error);
+    console.error("[email] Post-session failed to", params.to, JSON.stringify(error));
     return false;
   }
   return true;
